@@ -17,6 +17,30 @@
           <td data-th="Field" class="text-left">Loaded sheet access level</td>
           <td data-th="Value" class="text-left">{{ loadedGoogleSheet.accessLevel }}</td>
         </tr>
+        <tr>
+          <td data-th="Field" class="text-left">Sheets in this googledoc</td>
+          <td data-th="Value" class="text-left">
+            <div v-for="sheet in loadedGoogleSheet.sheets" :key="sheet.properties.sheetId">
+              {{ sheet.properties.title }}<br/>
+            </div>
+          </td>
+        </tr>
+        <tr v-if="0 !== loadedGoogleSheet.sheets.length">
+          <td data-th="Field" class="text-left">Data from first sheet ({{ loadedGoogleSheet.sheets[0].properties.title }})</td>
+          <td data-th="Value" class="text-left">
+            <table>
+              <tbody>
+                <tr v-for="rowDataC in loadedGoogleSheet.sheets[0].data[0].rowData">
+                  <td v-for="colData in rowDataC.values">
+                    <div v-if="typeof(colData.userEnteredValue) !== 'undefined'">
+                      {{ colData.userEnteredValue.stringValue }}
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -24,6 +48,9 @@
 
 <script>
 import globalStore from './globalStore'
+
+// function getElementIndex
+
 export default {
   data () {
     return {

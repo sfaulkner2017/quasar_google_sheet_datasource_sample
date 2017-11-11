@@ -3,6 +3,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import googleDocs from './googleDocs.js'
+import tenantSpecificData from '../tenantSpecific.js'
 
 var loadStateStrings = ['CREATED', 'LOADING', 'LOADED', 'ERROR']
 
@@ -11,8 +12,9 @@ const state = {
   dataLoadState: 0, // 0 = CREATED, 1 = LOADING, 2 = LOADED, 3 = ERROR
   lastErrorMessage: '',
   loadedGoogleSheet: {
-    id: '10mv_ebHQbq2KIhHuH1HY-kNjWuL5OQ6ls-TX865MjIg',
-    accessLevel: 'NONE'
+    id: tenantSpecificData.googleDocsSampleSheetID,
+    accessLevel: 'UNKNOWN',
+    sheets: []
   }
 }
 
@@ -32,6 +34,12 @@ const mutations = {
   SET_STATE_ERROR (state, msg) {
     state.lastErrorMessage = msg
     state.dataLoadState = 3
+  },
+  SET_SHEET_ACCESSLEVEL (state, level) {
+    state.loadedGoogleSheet.accessLevel = level
+  },
+  SET_SHEETS (state, sheets) {
+    state.loadedGoogleSheet.sheets = sheets
   }
 }
 
@@ -64,10 +72,10 @@ const actions = {
       sheetID: state.loadedGoogleSheet.id,
       callbackFN: function (result, message) {
         if (result === 'Success') {
-          console.log('TODO Success')
-          console.log(result)
+          commit('SET_SHEET_ACCESSLEVEL', message.level) // set load state to LOADED
+          commit('SET_SHEETS', message.sheets)
           commit('SET_STATE_LOADED') // set load state to LOADED
-          callbackFN(result, message)
+          callbackFN(result, 'Dataload complete')
         }
         else {
           commit('SET_STATE_ERROR', message) // set load state to ERROR
